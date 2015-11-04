@@ -13,7 +13,7 @@ class AnamnesisRespuesta extends Maestro {
 
 	public $rules = array(
 			'paciente_id' => 'required|integer|exists:pacientes,id',
-			'anamnesis_pregunta_id' => 'requiredinteger|exists:anamnesis_preguntas,id',
+			'anamnesis_pregunta_id' => 'required|integer|exists:anamnesis_preguntas,id',
                         'respuesta' => 'Max:512',
                 );
 

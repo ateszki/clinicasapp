@@ -95,9 +95,10 @@ class AnamnesisRespuestaController extends MaestroController {
 				$respuesta = array(
 					"paciente_id" => $new["paciente_id"],
 					"anamnesis_pregunta_id" => $new["pregunta"][$i],
-					"respuesta" => $r,
+				//	"respuesta" => $r,
 				);
-				$AR = AnamnesisRespuesta::create($respuesta);
+				$AR = AnamnesisRespuesta::firstOrNew($respuesta);
+				$AR->respuesta = $r;
 				if ($AR->save()){
 					$this->eventoAuditar($AR);
 				} else{ 
@@ -112,7 +113,7 @@ class AnamnesisRespuestaController extends MaestroController {
 			DB::commit();
 			return Response::json(array(
 			'error'=>false,
-			'listado'=>$new),
+			'listado'=>"OK"),
 			200);
 
 

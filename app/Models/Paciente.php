@@ -69,5 +69,8 @@ class Paciente extends Maestro {
 	public function sobres(){
 		return $this->hasMany('Sobre');
 	}
+	public function anamnesis_respuestas(){
+		return $this->hasMany('AnamnesisRespuesta');
+	}
 
 }

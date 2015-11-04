@@ -91,7 +91,7 @@ class PlanPrepagaController extends MaestroController {
 		$obj["codigo_nomenclador"] = $l->nomenclador->codigo;
 		$obj["descripcion_nomenclador"] = $l->nomenclador->descripcion;
 		$obj["item_bas"] = $l->nomenclador->item_bas;
-		$obj["tasa_iva"] = $l->nomenclador->tasa_iva();
+		$obj["tasaiva"] = $l->nomenclador->tasaiva;
 		$obj["codigo_lista_precios"] = $l->listas_precios->codigo;
 		$obj["grupo_dental"] = $l->grupo_dental->descripcion;
 		$listado[] = $obj; 
@@ -108,7 +108,7 @@ class PlanPrepagaController extends MaestroController {
 		$obj["codigo_nomenclador"] = $l->nomenclador->codigo;
 		$obj["descripcion_nomenclador"] = $l->nomenclador->descripcion;
 		$obj["item_bas"] = $l->nomenclador->item_bas;
-		$obj["tasa_iva"] = $l->nomenclador->tasa_iva();
+		$obj["tasaiva"] = $l->nomenclador->tasaiva;
 		$obj["codigo_lista_precios"] = $l->listas_precios->codigo;
 		$obj["grupo_dental"] = $l->grupo_dental->descripcion;
 		$listado[] = $obj; 

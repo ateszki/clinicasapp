@@ -88,6 +88,7 @@ class ListaPreciosNomencladorController extends MaestroController {
 		$obj["codigo_nomenclador"] = $l->nomenclador->codigo;
 		$obj["descripcion_nomenclador"] = $l->nomenclador->descripcion;
 		$obj["codigo_lista_precios"] = $l->listas_precios->codigo;
+		$obj["tasaiva"] = $l->nomenclador->tasaiva;
 		$obj["grupo_dental"] = $l->grupo_dental->descripcion;
 		$listado[] = $obj; 
 

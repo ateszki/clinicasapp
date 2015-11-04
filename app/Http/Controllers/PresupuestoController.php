@@ -317,6 +317,7 @@ class PresupuestoController extends MaestroController {
 					"fecha_emision"=>$presu->fecha_emision,
 					"estado"=>(empty($presu->fecha_aprobacion))?'PROVISORIO':'APROBADO',
 					"importe_bruto"=>$presu->importe_bruto,
+					"importe_neto"=>$presu->importe_neto,
 					"odontologo"=>$coe->odontologo()->first()->nombreCompleto,
 					"especialidad"=>$coe->especialidad()->first()->especialidad,
 					"prepaga_codigo"=>$prepaga->codigo,

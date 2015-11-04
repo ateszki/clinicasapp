@@ -354,4 +354,22 @@ if(!empty($hasta)){
                         return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso:'.$id),200);
                 }
         }
+	public function anamnesis($id){
+                try{
+                        $anamnesis = Paciente::findOrFail($id)->anamnesis_respuestas()->with('pregunta')->get();
+			$preg_resp = [];
+			foreach ($anamnesis as $key => $an){
+				$preg_resp[$key] = $an->toArray();
+				$preg_resp[$key]["numero"] = $an->pregunta->numero;
+				$preg_resp[$key]["pregunta"] = $an->pregunta->pregunta;
+			}
+			return Response::json(array(
+                        'error' => false,
+                        'listado' => $preg_resp),
+                        200
+                        );
+                }catch (Exception $e){
+                        return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso:'.$id),200);
+                }
+        }
 }

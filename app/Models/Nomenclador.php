@@ -22,7 +22,8 @@ class Nomenclador extends Maestro {
 			'figura_odontograma',
 			'imagen_odontograma_anterior',
 			'imagen_odontograma_arealizar',
-			'habilitado',  
+			'habilitado',
+		      	'tasaiva',	
 		);
 
 
@@ -44,16 +45,9 @@ class Nomenclador extends Maestro {
 			'figura_odontograma'=>'boolean',
 			'imagen_odontograma_anterior'=>'max:50',
 			'imagen_odontograma_arealizar'=>'max:50',
-			'habilitado'=>'boolean',  
+			'habilitado'=>'boolean', 
+		        'tasaiva'=>'numeric'	
                 );
 
-	public function tasa_iva(){
-		if(!empty($this->item_bas)){
-			$t = Tabla::where('codigo_tabla','=','ITEM_BAS')->where('valor','=',$this->item_bas)->firstOrFail();
-			return $t->coeficiente;
-		}else{
-			return null;
-		}
-	}
 	
 }

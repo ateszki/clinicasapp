@@ -53,6 +53,7 @@ Route::group(array('before' => 'apiauth|usuarioauth'), function()
 	Route::post('ausencia-odontologo/buscar','AusenciaOdontologoController@postBuscar');
 	Route::resource('ausencia-odontologo', 'AusenciaOdontologoController');
 
+	Route::get('paciente/{paciente_id}/anamnesis','PacienteController@anamnesis');
 	Route::get('paciente/{paciente_id}/sobres','PacienteController@sobres');
 	Route::get('paciente/{paciente_id}/planes-tratamientos','PacienteController@planes_tratamientos');
 	Route::get('paciente/{paciente_id}/turnos','PacienteController@turnos');
@@ -223,7 +224,7 @@ Route::group(array('before' => 'apiauth|usuarioauth'), function()
 	Route::post('anamnesis-pregunta/buscar','AnamnesisPreguntaController@postBuscar');
 	Route::resource('anamnesis-pregunta', 'AnamnesisPreguntaController');
 
-	Route::post('anamnesis-respuesta/respoder','AnamnesisRespuestaController@responder');
+	Route::post('anamnesis-respuesta/responder','AnamnesisRespuestaController@responder');
 	Route::post('anamnesis-respuesta/buscar','AnamnesisRespuestaController@postBuscar');
 	Route::resource('anamnesis-respuesta', 'AnamnesisRespuestaController');
 
