@@ -15,6 +15,7 @@ Route::get('/', function()
 	return view('welcome');
 });
 
+/*
 Route::filter('apiauth', function()
 {
     if (Input::get('apikey') != Config::get('app.apikey'))
@@ -32,12 +33,12 @@ Route::filter('usuarioauth', function()
 	    }
 	Auth::loginUsingId($u[0]->id);
 });
-
-Route::group(array('before' => 'apiauth'),function()
+ */
+Route::group(['middleware' => 'apiauth'],function()
 {
 	Route::post('user/login','UserController@validar');	
 });
-Route::group(array('before' => 'apiauth|usuarioauth'), function()
+Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 {
 	Route::post('consultorio/buscar','ConsultorioController@postBuscar');
 	Route::resource('consultorio', 'ConsultorioController');
@@ -215,6 +216,15 @@ Route::group(array('before' => 'apiauth|usuarioauth'), function()
 	Route::post('listas-precios-productos/buscar','ListaPreciosProductosController@postBuscar');
 	Route::resource('listas-precios-productos', 'ListaPreciosProductosController');
 
+	Route::post('listas-precios-honorarios/buscar','ListasPreciosHonorariosController@postBuscar');
+	Route::get('listas-precios-honorarios/{lista_id}/valores-vigentes/nomenclador/{nomenclador_id}','ListasPreciosHonorariosController@valores');
+	Route::get('listas-precios-honorarios/{lista_id}/valores-vigentes','ListasPreciosHonorariosController@valores');
+	Route::get('listas-precios-honorarios/{lista_id}/valores/{fecha}/nomenclador/{nomenclador_id}','ListasPreciosHonorariosController@valores');
+	Route::get('listas-precios-honorarios/{lista_id}/valores/{fecha}','ListasPreciosHonorariosController@valores');
+	Route::resource('listas-precios-honorarios', 'ListasPreciosHonorariosController');
+	Route::post('listas-precios-honorarios-valores/buscar','ListasPreciosHonorariosController@postBuscar');
+	Route::resource('listas-precios-honorarios-valores', 'ListasPreciosHonorariosValoresController');
+
 	Route::post('piezas-dentales/buscar','PiezaDentalController@postBuscar');
 	Route::resource('piezas-dentales', 'PiezaDentalController');
 
@@ -276,7 +286,17 @@ Route::group(array('before' => 'apiauth|usuarioauth'), function()
 
 //auditoria
 	Route::get('auditar/tratamiento/{id}','AuditoriaController@auditar');
-
+	Route::post('reglas-auditoria/buscar','ReglasAuditoriaController@postBuscar');
+	Route::resource('reglas-auditoria', 'ReglasAuditoriaController');
+	Route::post('normas-auditoria/buscar','NormasAuditoriaController@postBuscar');
+	Route::resource('normas-auditoria', 'NormasAuditoriaController');
+	Route::post('normas-detalle/buscar','NormasDetalleController@postBuscar');
+	Route::resource('normas-detalle', 'NormasDetalleController');
+	Route::post('sinonimos-garantia/buscar','SinonimosGarantia@postBuscar');
+	Route::resource('sinonimos-garantia', 'SinonimosGranatiaController');
+	Route::post('inconsistencias-auditoria/buscar','InconsistenciasAuditorie@postBuscar');
+	Route::resource('inconsistencias-auditoria', 'InconsistenciasAuditoriaController');
+	
 
 // generales
 	Route::get('fecha-hora', 'HerramientasController@getFechaHora');

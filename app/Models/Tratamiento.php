@@ -54,6 +54,10 @@ class Tratamiento  extends Maestro {
 	public function getDescripcionNomencladorAttribute(){
 		return $this->nomenclador()->first()->descripcion;
 	}
+
+	public function filtrar($desde,$hasta,$odontologos = NULL, $centros = NULL, $especialidades=NULL,){
+		$this->where();
+	}
 	public function getEsquema(){
 		$esquema = parent::getEsquema();
 		$esquema[] = array(

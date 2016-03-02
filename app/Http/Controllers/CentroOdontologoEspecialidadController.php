@@ -276,7 +276,7 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 		if (count($coes)==0){
 			return json_encode(array(
 			'error' => true,
-			'mensaje' => "No hay agendas para generar"));
+			'mensaje' => "No hay centros con agendas para generar"));
 		}	
 		$errores = false;
 		$agendas_general = 0;

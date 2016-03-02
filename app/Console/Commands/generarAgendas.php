@@ -40,7 +40,7 @@ class generarAgendas extends Command {
 	{
 		$this->info('Generar Agendas');
 		$this->info('Iniciado: '.date('Y-m-d H:i:s'));
-		$c = new CentroOdontologoEspecialidadController;
+		$c = new \CentroOdontologoEspecialidadController;
 		$resultado = $c->generarAgendas();
 		$this->info($resultado);	
 		$this->info('Terminado: '.date('Y-m-d H:i:s'));
