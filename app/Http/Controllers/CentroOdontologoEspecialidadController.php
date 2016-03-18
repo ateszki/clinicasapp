@@ -272,7 +272,7 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 	}
 */
 	public function generarAgendas(){
-		$coes = CentroOdontologoEspecialidad::whereNotIn('especialidad_id',function($query){$query->select('id')->from('especialidades')->where('genera_agendas','=',0);})->where('habilitado','=',1)->get();
+		$coes = CentroOdontologoEspecialidad::whereIn('odontologo_id',function($query){$query->select('id')->from('odontologos')->whereNull('fechabaja');})->whereNotIn('especialidad_id',function($query){$query->select('id')->from('especialidades')->where('genera_agendas','=',0);})->where('habilitado','=',1)->get();
 		if (count($coes)==0){
 			return json_encode(array(
 			'error' => true,

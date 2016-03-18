@@ -40,6 +40,7 @@ Route::group(['middleware' => 'apiauth'],function()
 });
 Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 {
+
 	Route::post('consultorio/buscar','ConsultorioController@postBuscar');
 	Route::resource('consultorio', 'ConsultorioController');
 	
@@ -215,15 +216,15 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 
 	Route::post('listas-precios-productos/buscar','ListaPreciosProductosController@postBuscar');
 	Route::resource('listas-precios-productos', 'ListaPreciosProductosController');
-
+	
 	Route::post('listas-precios-honorarios/buscar','ListasPreciosHonorariosController@postBuscar');
 	Route::get('listas-precios-honorarios/{lista_id}/valores-vigentes/nomenclador/{nomenclador_id}','ListasPreciosHonorariosController@valores');
 	Route::get('listas-precios-honorarios/{lista_id}/valores-vigentes','ListasPreciosHonorariosController@valores');
 	Route::get('listas-precios-honorarios/{lista_id}/valores/{fecha}/nomenclador/{nomenclador_id}','ListasPreciosHonorariosController@valores');
 	Route::get('listas-precios-honorarios/{lista_id}/valores/{fecha}','ListasPreciosHonorariosController@valores');
 	Route::resource('listas-precios-honorarios', 'ListasPreciosHonorariosController');
-	Route::post('listas-precios-honorarios-valores/buscar','ListasPreciosHonorariosController@postBuscar');
-	Route::resource('listas-precios-honorarios-valores', 'ListasPreciosHonorariosValoresController');
+	Route::post('listas-precios-honorarios-val/buscar','ListasPreciosHonorariosController@postBuscar');
+	Route::resource('listas-precios-honorarios-val', 'ListasPreciosHonorariosValoresController');
 
 	Route::post('piezas-dentales/buscar','PiezaDentalController@postBuscar');
 	Route::resource('piezas-dentales', 'PiezaDentalController');

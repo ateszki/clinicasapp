@@ -81,11 +81,15 @@ class PlanPrepagaController extends MaestroController {
 	
 	public function nomencladorLista($id){
 	$pp = $this->modelo->find($id);
+	$prepaga = $pp->prepaga;
 	$lpnmodelo = new ListaPreciosNomenclador();
 	$lpn = $lpnmodelo->where('listas_precios_id','=',$pp->lista_precios_id)->with('nomenclador','listas_precios','grupo_dental')->get();
 	$listado = array();
 	foreach ($lpn as $l){
 		$obj = $l->toArray();
+		if($prepaga->precios_bonificados != 'S'){
+			$obj["precio"] = number_format($obj["precio"]*1.21,2,'.','');  
+		}
 		unset($obj["nomenclador"]);
 		unset($obj["listas_precios"]);
 		$obj["codigo_nomenclador"] = $l->nomenclador->codigo;
@@ -103,6 +107,9 @@ class PlanPrepagaController extends MaestroController {
 	foreach ($lpn1 as $l){
 		
 		$obj = $l->toArray();
+		if($prepaga->precios_bonificados != 'S'){
+			$obj["precio"] = number_format($obj["precio"]*1.21,2,'.','');  
+		}
 		unset($obj["nomenclador"]);
 		unset($obj["listas_precios"]);
 		$obj["codigo_nomenclador"] = $l->nomenclador->codigo;

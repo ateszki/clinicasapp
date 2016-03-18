@@ -44,5 +44,8 @@ class PlanPrepaga extends Maestro {
 	public function prepagas(){
 		return $this->hasMany('Prepaga');
 	}
+	public function prepaga(){
+		return $this->belongsTo(\Prepaga::class);
+	}
 
 }
