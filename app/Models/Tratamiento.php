@@ -55,7 +55,7 @@ class Tratamiento  extends Maestro {
 		return $this->nomenclador()->first()->descripcion;
 	}
 
-	public function filtrar($desde,$hasta,$odontologos = NULL, $centros = NULL, $especialidades=NULL,){
+	public function filtrar($desde,$hasta,$odontologos = NULL, $centros = NULL, $especialidades=NULL){
 		$this->where();
 	}
 	public function getEsquema(){

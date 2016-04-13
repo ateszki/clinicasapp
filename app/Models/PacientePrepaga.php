@@ -47,4 +47,14 @@ class PacientePrepaga extends Maestro {
 	public function turnos(){
 		return $this->hasMany('Turno');
 	}
+	
+	public function facturasConSaldo(){
+		$saldo= DB::select("SELECT sum(case  tipo_cbte when 'FB' then importe_total else 0 end) - sum(case  tipo_cbte when 'RE' then importe_total else 0 end) as dif  FROM `ctactes` where `paciente_prepaga_id` = ? group by `paciente_prepaga_id`",[$this->id]);
+		return (count($saldo))?($saldo[0]->dif != 0):false;
+	}
+
+	public function presupuestosConSaldo(){
+		$saldo = DB::select("SELECT sum(p.importe_neto) - (select sum(c.importe) as importe from  `ctactes_fac_lin` c where c.presupuesto_id = p.id group by c.presupuesto_id  ) as dif FROM `presupuestos` p WHERE p.`fecha_aprobacion` is not null and p.`paciente_prepaga_id` = ? group by  p.`paciente_prepaga_id`",[$this->id]);
+		return (count($saldo))?($saldo[0]->dif != 0):false;
+	}
 }

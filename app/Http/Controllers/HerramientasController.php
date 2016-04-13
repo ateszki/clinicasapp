@@ -23,12 +23,14 @@ class HerramientasController extends \BaseController {
 	}
 	
 	public static function getFechaHora(){
-			$f = date("d/m/Y");
-			$h = date("H:i");
-			 return Response::json(array(
-                        'error'=>false,
+
+		$mytime = Carbon\Carbon::now();
+		$f = $mytime->format("d/m/Y");
+		$h = $mytime->format("H:i");
+		 return Response::json(array(
+                       'error'=>false,
 			'listado'=>array("fecha"=>$f,"hora"=>$h),
-                        ),200);
+                  ),200);
 		
 	} 
 }

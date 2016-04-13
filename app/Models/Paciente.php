@@ -23,6 +23,7 @@ class Paciente extends Maestro {
 		'telefono2',
 		'celular',
 		'email',
+		'vip'
 		);
 
 
@@ -39,7 +40,16 @@ class Paciente extends Maestro {
 			'localidad' => 'max:50',
 			'provincia_id'=>'required|integer|exists:provincias,id',
 			'pais_id'=>'required|integer|exists:paises,id',
+			'vip'=>'boolean',
+			'email'=>'email',
                 );
+
+	public $validator_messages = [
+		    'email' => 'Ingrese una dirección de email válido.',
+		    ];
+
+
+	protected $appends = ['presento_queja'];
 
 	public function prepagas(){
 		return $this->belongsToMany('Prepaga');
@@ -69,8 +79,48 @@ class Paciente extends Maestro {
 	public function sobres(){
 		return $this->hasMany('Sobre');
 	}
+	public function quejas(){
+		return $this->hasMany('Queja');
+	}
 	public function anamnesis_respuestas(){
 		return $this->hasMany('AnamnesisRespuesta');
 	}
 
+	public function tratamientos(){
+		return DB::select("SELECT tr.*
+			FROM tratamientos tr
+			INNER JOIN turnos tu ON tr.turno_id = tu.id
+			INNER JOIN paciente_prepaga pp ON tu.paciente_prepaga_id = pp.id
+			WHERE
+			pp.paciente_id = ? ",[$this->id]);
+		
+	}
+
+	public function tieneFichados(){
+		return count(DB::select("SELECT tr . *
+			FROM tratamientos tr
+			INNER JOIN turnos tu ON tr.turno_id = tu.id
+			INNER JOIN paciente_prepaga pp ON tu.paciente_prepaga_id = pp.id
+			INNER JOIN agendas a on tu.agenda_id = a.id
+			WHERE
+			tr.nomenclador_id in (select id from nomencladores where `genera_odontograma` = 1)
+			and pp.paciente_id = ? 
+			and a.fecha >= DATE_ADD(now(),INTERVAL -180 DAY)
+			",[$this->id]));
+			
+		//return ($this->fichados()->where('fecha_emision','>=','DATE_ADD(now(),INTERVAL -180 DAY)')->count());
+	}
+
+	public function getPresentoQuejaAttribute(){
+		return count($this->quejas);
+	}
+
+	public function tieneHIV(){
+		$ars = $this->anamnesis_respuestas()->where('anamnesis_pregunta_id','=',19)->get();
+		$salida = false;
+		foreach ($ars as $ar){
+			$salida = ($ar->respuesta == 'SI')?true:false;
+		}
+		return $salida;
+	}
 }

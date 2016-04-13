@@ -7,6 +7,8 @@ class Maestro extends Eloquent {
 
 	public $rules = array();
 
+	public $validator_messages = [];
+
     // Override the parent method
     public function newCollection(array $models = Array())
     {
@@ -26,7 +28,7 @@ class Maestro extends Eloquent {
 	     return $array;
 	}
 	public function isValid($id=null){
-		$this->validator =  Validator::make($this->toArray(), $this->getValidationRules($id));
+		$this->validator =  Validator::make($this->toArray(), $this->getValidationRules($id),$this->validator_messages);
 		return $this->validator->passes();
 	}
 

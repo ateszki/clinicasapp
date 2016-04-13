@@ -189,5 +189,17 @@ class UserController extends MaestroController {
 		}
 
 	}
-
+	public function autorizado($user_id,$role_id){
+		try {
+			$autorizado = Autorizacion::where('user_id_autorizado','=',$user_id)->where('role_id','=',$role_id)->where('hasta','>',date('Y-m-d H:i'))->count();
+			return Response::json(array('error'=>false,"listado"=>["autorizado"=>$autorizado]),200);
+		} catch(\Exception $e){
+			return Response::json(array(
+			'error' => true,
+			'mensaje' => $e->getMessage()),
+			200
+			);
+		}
+	
+	}
 }

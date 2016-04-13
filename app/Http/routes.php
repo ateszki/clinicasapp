@@ -70,7 +70,9 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::get('paciente/{paciente_id}/observaciones','PacienteController@observaciones_detalladas');
 	Route::get('paciente/{paciente_id}/prepaga','PacientePrepagaController@vista_detallada');
 	Route::get('paciente/{paciente_id}/datos-relacionados','PacienteController@datosRelacionados');
+	Route::post('paciente/{paciente_id}/esvip','PacienteController@esvip');
 	Route::post('paciente/buscar','PacienteController@postBuscar');
+	
 	Route::resource('paciente', 'PacienteController');
 
 	Route::post('fichero/buscar','FicheroController@postBuscar');
@@ -102,9 +104,13 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::resource('especialidad-motivo-turno', 'EspecialidadMotivoTurnoController');
 
 	
+	Route::post('quejas/buscar','QuejaController@postBuscar');
+	Route::resource('quejas', 'QuejaController');
+	
 	Route::get('centro-odontologo-especialidad/{id}/agendas','CentroOdontologoEspecialidadController@agendas');
 	Route::get('centro-odontologo-especialidad/{id}/crear-agenda/{fecha}','CentroOdontologoEspecialidadController@generarAgenda');
 	Route::get('centro-odontologo-especialidad/turnos','CentroOdontologoEspecialidadController@vistaTurnos');
+	Route::get('centro-odontologo-especialidad/parte-diario','CentroOdontologoEspecialidadController@parteDiario');
 	Route::get('centro-odontologo-especialidad/observaciones','CentroOdontologoEspecialidadController@observacionesAgenda');
 	Route::get('centro-odontologo-especialidad/agendas','CentroOdontologoEspecialidadController@agendas_multi_dias');
 	Route::get('centro-odontologo-especialidad/detalle','CentroOdontologoEspecialidadController@vista_detallada');
@@ -115,12 +121,14 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::post('agenda/{id}/deshabilitar','AgendaController@deshabilitarTurnos');
 	Route::post('agenda/{id}/efector/{efector_id}','AgendaController@cambiaEfector');
 	Route::get('agenda/{id}/turnos','AgendaController@vistaTurnos');
+	Route::get('agenda/fecha/{fecha}','AgendaController@agendasDelDia');
 	Route::post('agenda/buscar','AgendaController@postBuscar');
 	Route::resource('agenda', 'AgendaController');
 
 	Route::match(array('POST','GET'),'user/{id}/esquema-color','UserController@setEsquemaColor');
 	Route::post('user/validar','UserController@validarSimple');	
 	Route::post('user/buscar','UserController@postBuscar');
+	Route::get('user/{user_id}/role/{role_id}/autorizado','UserController@autorizado');
 	Route::get('user/{id}/groups','UserController@grupos');
 	Route::post('user/{id}/groups/modificar', 'UserController@setGroups');
 	Route::get('user/{id}/roles','UserController@roles');
@@ -134,6 +142,10 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::resource('group', 'GroupController');
 	Route::post('role/buscar','RoleController@postBuscar');
 	Route::resource('role', 'RoleController');
+	
+	Route::post('autorizaciones', 'AutorizacionController@store');
+	Route::post('autorizaciones/{id}/autorizar', 'AutorizacionController@autorizar');
+	Route::get('autorizaciones', 'AutorizacionController@pendientes');
 	
 	Route::post('esquema-color/buscar','EsquemaColorController@postBuscar');
 	Route::resource('esquema-color', 'EsquemaColorController');
@@ -160,6 +172,8 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	
 // cuentas corrientes
 	Route::post('factura/crear','CtacteController@crear');	
+	Route::post('factura/{id}/print_ok','CtacteController@printStatus');	
+	Route::post('factura/{id}/update_ticket','CtacteController@updateTicket');	
 	Route::get('factura/{id}','CtacteController@traerMovimiento');	
 	Route::get('factura/{id}/items','CtacteController@traerItems');	
 	Route::get('factura/{id}/pagos','CtacteController@traerPagos');	

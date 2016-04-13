@@ -135,7 +135,6 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 
 	}
 
-
 	public function observacionesAgenda(){
 		//$a = Route::currentRouteAction();
 		//$a = Route::getRoutes();
@@ -183,6 +182,36 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 		'error' => false,
 		'listado' => $turnos,
 		),
+		200
+	    );
+	}
+
+	public function parteDiario(){
+		$salida = [];
+		$params = Input::all();
+		$coes = CentroOdontologoEspecialidad::where('odontologo_id',$params['odontologo_id'])
+				->where('centro_id',$params['centro_id'])
+				->where('especialidad_id',$params['especialidad_id'])->get();
+		
+		foreach ($coes as $coe){
+			$agendas = $coe->agendas()->where('habilitado_turnos','=',1)->where('fecha','=',$params["fecha"])->get();
+			foreach ($agendas as $agenda){
+				$turnos = $agenda->vistaTurnos();
+				foreach($turnos as $t){
+					$pp = PacientePrepaga::find($t->paciente_prepaga_id);
+					$t->tiene_fichados = ($pp->paciente->tieneFichados() > 0);
+					$t->presento_queja =  ($pp->paciente->presento_queja > 0);
+					$t->hiv = $pp->paciente->tieneHIV();
+					$t->presupuestos_con_saldo = $pp->presupuestosConSaldo();	
+					$t->facturas_con_saldo = $pp->facturasConSaldo();
+					$salida[]=$t;	
+				}
+			
+			}
+		}
+	    return Response::json(array(
+		'error' => false,
+		'listado' => $salida),
 		200
 	    );
 	}

@@ -111,6 +111,7 @@ class AgendaController extends MaestroController {
 	    );
 	}
 
+
 	public function cambiaEfector($id,$efector_id){
 		try {
 			$a = Agenda::findOrFail($id);
@@ -187,5 +188,30 @@ class AgendaController extends MaestroController {
 						200
 					    );
 			}
+	}
+	public function agendasDelDia($fecha){
+	
+		try {
+			$a = DB::select("SELECT a.id, coe.centro_id, c.razonsocial AS centro,c.identificador, coe.especialidad_id, e.especialidad, coe.odontologo_id, concat( o.apellido, ', ', o.nombres ) AS odontologo, coe.turno
+				FROM agendas a
+				INNER JOIN centros_odontologos_especialidades coe ON a.centro_odontologo_especialidad_id = coe.id
+				INNER JOIN odontologos o ON coe.odontologo_id = o.id
+				INNER JOIN especialidades e ON coe.especialidad_id = e.id
+				INNER JOIN centros c ON coe.centro_id = c.id
+				WHERE fecha = ?
+				ORDER BY c.razonsocial, e.especialidad, concat( o.apellido, ' ,', o.nombres ),coe.turno", [$fecha]);
+			return Response::json(array(
+				'error' => false,
+				'listado' => $a),
+					200
+				    );
+			} catch (Exception $e){
+						return Response::json(array(
+						'error' => true,
+						'mensaje' => $e->getMessage()),
+						200
+					    );
+			}
+	
 	}
 }

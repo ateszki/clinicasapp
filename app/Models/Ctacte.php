@@ -47,6 +47,9 @@ class Ctacte extends Maestro {
 			'print_ok'=>'Required|boolean',				
 			'cancelado'=>'boolean',				
 			'caja_id'=>'exists:cajas,id',
+			'ticket'=>'min:14|max:14',
+			'fecha_ticket'=>'date',
+
                 );
 
     public static function boot()
@@ -62,8 +65,9 @@ class Ctacte extends Maestro {
             foreach ($ctacte->lineas_recibo()->get() as $lr) {
                 $lr->delete();
             }
-	    $ctacte->mov_caja()->first()->delete();
-        });
+	    $mc = $ctacte->mov_caja()->first();
+	    if($mc != NULL){$mc->delete();}
+	});
 
         // Setup event bindings...
     }
@@ -110,7 +114,12 @@ class Ctacte extends Maestro {
 	}
         public function getNroCompletoAttribute($value){
                 return $this->tipo_cbte."-".$this->prefijo_cbte."-".$this->nro_cbte;
-        }
+	}
 
-	protected $appends = array("fecha_arg","debe","haber","saldo","nro_completo");
+	public function getReferidoPorAttribute($value){
+		$rp = DB::table('ctactes')->where('referencia','=',$this->id)->value('id');
+		return $rp;
+	}
+
+	protected $appends = array("fecha_arg","debe","haber","saldo","nro_completo","referido_por");
 }

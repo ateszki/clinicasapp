@@ -125,6 +125,7 @@ class MovimientoCajaController extends MaestroController {
 			}
                 } catch (Exception $e){
 			DB::rollback();
+			//dd($e);
                         return Response::json(array(
                         'error' => true,
                         'mensaje' => $e->getMessage()),

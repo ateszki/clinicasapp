@@ -17,7 +17,7 @@ class ApiAuth
     {
 	    if (\Input::get('apikey') != \Config::get('app.apikey'))
 	    {
-		App::abort(401, 'Ingreso no autorizado.');
+		\App::abort(401, 'Ingreso no autorizado.');
 	    }
         return $next($request);
     }

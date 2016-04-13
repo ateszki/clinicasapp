@@ -353,7 +353,7 @@ $data = array_map(function($n){return ($n == 'NULL')?NULL:$n;}, $data);
 	}
 
 	public function eventoAuditar($modelo){
-
+		DB::enableQueryLog();
 		$queries = DB::getQueryLog();
 		$last_query = end($queries);
 		$c = array();

@@ -164,7 +164,7 @@ class CtacteController extends MaestroController {
 		$pacientes_prepagas = PacientePrepaga::where('paciente_id','=',$paciente_id)->with('ctactes')->get()->toArray();
 		$movimientos = array();	
 		foreach ($pacientes_prepagas as $pp){
-			//var_dump($pp);die();	
+		//	var_dump($pp);die();	
 				$mov = $pp["ctactes"];
 				$prepaga = Prepaga::find($pp["prepaga_id"]);
 				foreach($mov as $m){
@@ -177,7 +177,8 @@ class CtacteController extends MaestroController {
 					//$m["fecha"] = substr($m["fecha"],-2)."-".substr($m["fecha"],5,2)."-".substr($m["fecha"],0,4);
 					$movimientos[] = $m;
 					//$movimientos = array_merge($movimientos,$mov);
-				}
+				} 
+		//		dd($movimientos);
 		}
 		return Response::json(array(
 		'error'=>false,
@@ -370,5 +371,61 @@ class CtacteController extends MaestroController {
 				    );
 		}
 
+	}
+	public function printStatus($id){
+		$C = Ctacte::findOrFail($id);
+		try {
+			$C->print_ok = Input::get('print_ok');
+			$C->impresora_fiscal = Input::get('impresora_fiscal');
+			if($C->save()){
+				return Response::json(array(
+				'error'=>false,
+				'listado'=>$C->toArray()),
+				200);
+
+			} else {
+				return Response::json(array(
+					'error' => true,
+					'mensaje' => HerramientasController::getErrores($C->validator),
+					'listado'=>$C->toArray(),
+				),200);
+			}
+		}catch (Exception $e){
+	
+			return Response::json(array(
+				'error' => true,
+				'mensaje' => $e->getMessage()),
+				200
+				    );
+		}
+	
+	}
+	public function updateTicket($id){
+		$C = Ctacte::findOrFail($id);
+		try {
+			$C->ticket = Input::get('ticket');
+			$C->fecha_ticket = Input::get('fecha_ticket');
+			if($C->save()){
+				return Response::json(array(
+				'error'=>false,
+				'listado'=>$C->toArray()),
+				200);
+			} else {
+				return Response::json(array(
+					'error' => true,
+					'mensaje' => HerramientasController::getErrores($C->validator),
+					'listado'=>$C->toArray(),
+				),200);
+			}
+
+		}catch (Exception $e){
+	
+			return Response::json(array(
+				'error' => true,
+				'mensaje' => $e->getMessage()),
+				200
+				    );
+		}
+	
 	}
 }

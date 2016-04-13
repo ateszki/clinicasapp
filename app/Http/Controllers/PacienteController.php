@@ -372,4 +372,31 @@ if(!empty($hasta)){
                         return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso:'.$id),200);
                 }
         }
+		public function esvip($id){
+		$C = Paciente::findOrFail($id);
+		try {
+			$C->vip = Input::get('vip');
+			if($C->save()){
+				return Response::json(array(
+				'error'=>false,
+				'listado'=>$C->toArray()),
+				200);
+			} else {
+				return Response::json(array(
+					'error' => true,
+					'mensaje' => HerramientasController::getErrores($C->validator),
+					'listado'=>$C->toArray(),
+				),200);
+			}
+
+		}catch (Exception $e){
+	
+			return Response::json(array(
+				'error' => true,
+				'mensaje' => $e->getMessage()),
+				200
+				    );
+		}
+	
+	}
 }
