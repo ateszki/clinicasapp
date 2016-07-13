@@ -92,8 +92,8 @@ if (!isset($parametros["param"]) || empty($parametros["param"])){
 //var_dump($param);
 //die();
 	$listado = Turno::turnos_libres($especialidad_id,$param);
-$queries = DB::getQueryLog();
-$last_query = end($queries);
+//$queries = DB::getQueryLog();
+//$last_query = end($queries);
 //var_dump($last_query);die();
 	    return Response::json(array(
 		'error' => false,

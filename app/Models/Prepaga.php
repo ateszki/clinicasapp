@@ -55,6 +55,9 @@ class Prepaga extends Maestro {
 	public function pacientes(){
 		return $this->belongsToMany('Paciente');
 	}	
+	public function planes(){
+		return $this->hasMany('PlanPrepaga');
+	}	
 /*
 	public function getFechaAltaAttribute($value){
 		return (!empty($value))?date("d/m/Y",strtotime($value)):'0000-00-00';

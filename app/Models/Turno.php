@@ -18,6 +18,10 @@ class Turno extends Maestro {
 		'user_id',
 		'presente',
 		'fuera_de_agenda',
+		'hora_ingreso_clinica',
+		'hora_ingreso_consultorio',
+		'hora_egreso_consultorio',
+		'falta_registro_ingresos',
 		);
 
 
@@ -35,7 +39,13 @@ class Turno extends Maestro {
 			'user_id' => 'exists:users,id',
 			'presente' =>'integer|in:0,1',
 			'fuera_de_agenda'=>'boolean',
-                );
+			'hora_ingreso_clinica'=>'date_format:H:i:s',
+			'hora_ingreso_consultorio'=>'date_format:H:i:s',
+			'hora_egreso_consultorio'=>'date_format:H:i:s',
+			'falta_registro_ingresos'=>'max:3',
+
+		);
+	protected $appends = ["fecha","centro","odontologo"];
 
 	public function agenda(){
 		return $this->belongsTo('Agenda');
@@ -53,6 +63,19 @@ class Turno extends Maestro {
 		return $this->hasMany('Tratamiento');
 	}
 
+	public function getCentroAttribute(){	
+		$agenda= $this->agenda()->first();
+		return $agenda->centroOdontologoEspecialidad->centro->razonsocial;
+	}
+	public function getOdontologoAttribute(){	
+		$agenda= $this->agenda()->first();
+		return $agenda->centroOdontologoEspecialidad->odontologo->nombre_completo;
+	}
+
+	public function getFechaAttribute(){
+		$agenda= $this->agenda()->first();
+		return $agenda->fecha_arg;
+	}
 	public static function turnos_libres($especialidad_id,$parametros){
 		$odontologos = (isset($parametros["odontologos"]) && !empty($parametros["odontologos"]))?$parametros["odontologos"]:NULL;
 		$centros = (isset($parametros["centros"]) && !empty($parametros["centros"]))?$parametros["centros"]:NULL;
@@ -66,7 +89,7 @@ class Turno extends Maestro {
 			->join('centros','centros_odontologos_especialidades.centro_id','=','centros.id')
 			->join('odontologos','centros_odontologos_especialidades.odontologo_id','=','odontologos.id')
 			->select(DB::raw("agendas.*,turnos.*"))
-			->select(DB::raw("agendas.centro_odontologo_especialidad_id,centros_odontologos_especialidades.dia_semana,DATE_FORMAT(agendas.fecha,'%d/%m/%Y') as fecha,agendas.odontologo_efector_id,agendas.observaciones as agenda_observaciones,turnos.*,especialidades.id as especialidad_id, especialidades.especialidad, centros.id as centro_id, centros.razonsocial AS centro,odontologo_id as odontologo_id, concat(odontologos.nombres, ' ',odontologos.apellido) as odontologo,odontologos.matricula,
+			->select(DB::raw("agendas.centro_odontologo_especialidad_id,centros_odontologos_especialidades.dia_semana,DATE_FORMAT(agendas.fecha,'%d/%m/%Y') as fecha,DATE_FORMAT(agendas.fecha,'%Y-%m-%d') as fecha_us,agendas.odontologo_efector_id,agendas.observaciones as agenda_observaciones,turnos.*,especialidades.id as especialidad_id, especialidades.especialidad, centros.id as centro_id, centros.razonsocial AS centro, centros.identificador AS centro_identificador,odontologo_id as odontologo_id, concat(odontologos.nombres, ' ',odontologos.apellido) as odontologo,odontologos.matricula,
 				CASE centros_odontologos_especialidades.turno
 				WHEN 'T'
 				THEN 'Tarde'
@@ -74,15 +97,17 @@ class Turno extends Maestro {
 				THEN 'Maniana'
 				END AS turno_nombre"))
 			->where('agendas.fecha','>=',date('Y-m-d'))
-                     ->where('turnos.estado','=','L')
-		     ->where('especialidades.id','=',$especialidad_id);
+			->where('agendas.habilitado_turnos','=',1)
+            ->where('turnos.estado','=','L')
+			->where('turnos.paciente_prepaga_id','=',null)
+		    ->where('especialidades.id','=',$especialidad_id);
 	
 		if (!empty($odontologos)){$query->whereIn('odontologos.id',$odontologos);}
 		if (!empty($centros)){$query->whereIn('centros.id',$centros);}
 		if (!empty($dias)){$query->whereIn('centros_odontologos_especialidades.dia_semana',$dias);}
 		if (!empty($turnos)){$query->whereIn('centros_odontologos_especialidades.turno',$turnos);}
-		$query->orderBy('agendas.fecha','asc');
-		return $query->skip(0)->take(50)->get();
+		$query->orderBy('agendas.fecha','asc')->orderBy('turnos.hora_desde','asc');
+		return $query->skip(0)->take(100)->get();
 	}
 
 }

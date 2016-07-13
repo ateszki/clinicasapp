@@ -45,7 +45,9 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::resource('consultorio', 'ConsultorioController');
 	
 	Route::get('odontologo/{id}/ausencia-odontologo','OdontologoController@ver_ausencias');
-	Route::get('odontologo/{id}/centros-especialidades','OdontologoController@centros_especialidades');
+	Route::get('odontologo/{id}/centros-especialidades/agrupado','OdontologoController@centros_especialidades_agrupado');
+	Route::get('odontologo/{id}/centros-especialidades/{habilitado?}','OdontologoController@centros_especialidades');
+	Route::get('odontologo/habilitados/{resumido?}','OdontologoController@odontologosHabilitados');
 	Route::post('odontologo/buscar','OdontologoController@postBuscar');
 	Route::resource('odontologo', 'OdontologoController');
 
@@ -57,8 +59,10 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 
 	Route::get('paciente/{paciente_id}/anamnesis','PacienteController@anamnesis');
 	Route::get('paciente/{paciente_id}/sobres','PacienteController@sobres');
-	Route::get('paciente/{paciente_id}/planes-tratamientos','PacienteController@planes_tratamientos');
+	Route::get('paciente/{paciente_id}/quejas','PacienteController@quejas');
 	Route::get('paciente/{paciente_id}/turnos','PacienteController@turnos');
+	Route::get('paciente/{paciente_id}/derivaciones','PacienteController@derivaciones');
+	Route::get('paciente/{paciente_id}/planes-tratamientos','PacienteController@planes_tratamientos');
 	Route::get('paciente/{paciente_id}/tratamientos','PacienteController@tratamientos');
 	Route::get('paciente/{paciente_id}/fichados-vista','PacienteController@fichadosVista');
 	Route::get('paciente/{paciente_id}/fichados-items/{pieza_dental_id}','PacienteController@fichadosItems');
@@ -83,6 +87,7 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::resource('sobre', 'SobreController');
 	
 	Route::get('prepaga/{id}/pacientes','PrepagaController@pacientes');
+	Route::get('prepaga/{id}/planes','PrepagaController@planes');
 	Route::post('prepaga/buscar','PrepagaController@postBuscar');
 	Route::resource('prepaga', 'PrepagaController');
 
@@ -160,7 +165,10 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::resource('iva', 'IvaController');
 
 	Route::post('tabla/buscar','TablaController@postBuscar');
+	Route::get('tabla/{codigotabla}','TablaController@vistacodigotabla');
 	Route::resource('tabla', 'TablaController');
+	
+	
 
 	Route::resource('motivo-turno', 'MotivoTurnoController');
 
@@ -168,21 +176,28 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::post('turno/{id}/presente','TurnoController@presente');
 	Route::post('turno/{id}/liberar','TurnoController@liberar');
 	Route::get('turno/{id}/traza','TurnoController@traza');
+	Route::post('turno/{id}/{accion}/eliminar','TurnoController@eliminarRegistroIngresos')->where('accion', '(hora_ingreso_clinica|hora_ingreso_consultorio|hora_egreso_consultorio)');
+	Route::post('turno/{id}/{accion}','TurnoController@registroIngresos')->where('accion', '(hora_ingreso_clinica|hora_ingreso_consultorio|hora_egreso_consultorio)');
 	Route::resource('turno', 'TurnoController');
 	
 // cuentas corrientes
+	Route::post('factura/buscar','CtacteController@postBuscar');
 	Route::post('factura/crear','CtacteController@crear');	
 	Route::post('factura/{id}/print_ok','CtacteController@printStatus');	
 	Route::post('factura/{id}/update_ticket','CtacteController@updateTicket');	
+	Route::get('factura/movimientosxcajayfecha','CtacteController@movimientosxCajayFecha');
+	Route::get('factura/movimientosxcajayfechapagos','CtacteController@movimientosxCajayFechaPagos');
 	Route::get('factura/{id}','CtacteController@traerMovimiento');	
 	Route::get('factura/{id}/items','CtacteController@traerItems');	
 	Route::get('factura/{id}/pagos','CtacteController@traerPagos');	
 	Route::resource('factura', 'CtacteController');
 
+	Route::put('presupuesto-linea/{id}','PresupuestoController@actualizarLinea');	
+	
 	Route::post('presupuesto/buscar','PresupuestoController@postBuscar');
 	Route::post('presupuesto/crear','PresupuestoController@crear');	
 	Route::post('presupuesto/{id}/restaurar','PresupuestoController@restaurar');	
-	Route::post('presupuesto/{id}/aprobar','PresupuestoController@aprobar');	
+	Route::post('presupuesto/{id}/aprobar','PresupuestoController@aprobar');
 	//Route::put('presupuesto/{id}/actualizar','PresupuestoController@actualizar');	
 	//Route::delete('presupuesto/{id}/eliminar','PresupuestoController@eliminar');	
 	Route::get('presupuesto/{id}/items','PresupuestoController@traerItems');	
@@ -193,8 +208,11 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::post('nomenclador/buscar','NomencladorController@postBuscar');
 	Route::resource('nomenclador', 'NomencladorController');
 	
+	Route::get('tratamiento/tratamientos-entre-fechas','TratamientoController@tratamientosEntreFechas');
+	Route::get('tratamiento/tratamientos-entre-fechas-totales','TratamientoController@tratamientosEntreFechasTotales');
 	Route::post('tratamiento/buscar','TratamientoController@postBuscar');
 	Route::resource('tratamiento', 'TratamientoController');
+
 
 	Route::get('planes-tratamiento/{plan_tratamiento_id}/seguimiento','PlanTratamientoController@seguimiento');
 	Route::get('planes-tratamiento/{plan_tratamiento_id}/derivaciones','PlanTratamientoController@derivaciones');

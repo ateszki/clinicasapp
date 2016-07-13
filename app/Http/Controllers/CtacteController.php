@@ -135,7 +135,7 @@ class CtacteController extends MaestroController {
 					200
 				    );
 			}
-
+			DB::enableQueryLog();
 			$eliminado = $modelo->delete();
 			if ($eliminado === true){
 				DB::commit();
@@ -192,7 +192,7 @@ class CtacteController extends MaestroController {
 		try
 		{
 
-
+		DB::enableQueryLog();
 		$data = Input::all();
 		$new = $data;
 		unset($new['apikey']);
@@ -217,6 +217,7 @@ class CtacteController extends MaestroController {
 		$new["user_id"] = Auth::user()->id;
 		$modelo_ctacte = new Ctacte();
 		$ctacte = $modelo_ctacte->create($new);
+		DB::enableQueryLog();
 		if ($ctacte->save()){
 				$this->eventoAuditar($ctacte);
 				if (count($items)){
@@ -251,6 +252,7 @@ class CtacteController extends MaestroController {
 				$new["importe_bruto"] = $importe;
 				$modelo_ctacte1 = new Ctacte();
 				$ctacte1 = $modelo_ctacte1->create($new);
+				DB::enableQueryLog();
 					if ($ctacte1->save()){
 						$this->eventoAuditar($ctacte1);
 						$referencia = $ctacte1->id;
@@ -426,6 +428,63 @@ class CtacteController extends MaestroController {
 				200
 				    );
 		}
+	
+	}
+	public function movimientosxCajayFecha(){
+		$params = Input::all();
+		try {
+			$a = DB::select("SELECT c.id, c.caja_id, c.fecha, pr.codigo, c.tipo_movimiento, c.tipo_prev, c.ticket,c.referencia, c.importe_bruto, c.importe_neto,
+							c.importe_iva, c.importe_total,ca.caja, CONCAT( p.tipo_documento,  ' ', p.nro_documento ) AS documento, 
+							t.debehaber,c.user_id, u.nombre as nombre_usuario, u.username,c.prefijo_cbte,c.nro_cbte,c.print_ok 
+							FROM ctactes c
+							INNER JOIN paciente_prepaga pp ON c.paciente_prepaga_id = pp.id
+							INNER JOIN pacientes p ON pp.paciente_id = p.id
+							INNER JOIN prepagas pr ON pp.prepaga_id = pr.id
+							INNER JOIN cajas ca ON ca.id = c.caja_id
+							INNER JOIN tablas t ON t.codigo_tabla='COMPROBANTES_CTACTE' and t.valor =c.tipo_prev
+							INNER JOIN users u ON c.user_id = u.id
+							WHERE fecha >= ? and fecha <= ?
+							ORDER BY c.fecha,c.caja_id,c.id",[$params['fechadesde'],$params['fechahasta']]);
+			return Response::json(array(
+				'error' => false,
+				'listado' => $a),
+					200
+				    );
+			} catch (Exception $e){
+						return Response::json(array(
+						'error' => true,
+						'mensaje' => $e->getMessage()),
+						200
+					    );
+			}
+	
+	}
+	public function movimientosxCajayFechaPagos(){
+		$params = Input::all();
+		try {
+			$a = DB::select("SELECT c.id, c.caja_id, c.fecha, c.tipo_prev, l.tipo, l.descripcion, l.importe,l.numero_cheque,l.numero_cupon,
+							l.codigo_tarjeta,l.codigo_plan,l.tipo_cambio,ca.caja,c.prefijo_cbte,c.nro_cbte,c.ticket,
+							CONCAT( p.tipo_documento,  ' ', p.nro_documento ) AS documento,c.user_id, u.nombre as nombre_usuario, u.username
+							FROM ctactes c
+							INNER JOIN ctactes_rec_lin l ON l.ctacte_id = c.id
+							INNER JOIN users u ON c.user_id = u.id
+							INNER JOIN cajas ca ON ca.id = c.caja_id
+							INNER JOIN paciente_prepaga pp ON c.paciente_prepaga_id = pp.id
+							INNER JOIN pacientes p ON pp.paciente_id = p.id
+							WHERE fecha >= ? and fecha <= ?
+							ORDER BY c.fecha,c.caja_id,l.tipo,c.id",[$params['fechadesde'],$params['fechahasta']]);
+			return Response::json(array(
+				'error' => false,
+				'listado' => $a),
+					200
+				    );
+			} catch (Exception $e){
+						return Response::json(array(
+						'error' => true,
+						'mensaje' => $e->getMessage()),
+						200
+					    );
+			}
 	
 	}
 }

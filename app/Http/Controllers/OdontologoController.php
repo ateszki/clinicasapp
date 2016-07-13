@@ -165,9 +165,28 @@ class OdontologoController extends MaestroController {
 		return parent::destroy($id);
 	}
 
-	public function centros_especialidades($id){
-	    //$ce = Odontologo::find($id)->centrosEspecialidades()->with(array('Especialidad','Centro'))->get();
-	$ce = Odontologo::findOrFail($id)->vistaCentrosespecialidades();
+	public function centros_especialidades_agrupado($id){
+		$ce = Odontologo::findOrFail($id)->vistaCentrosEspecialidadesAgrupado();
+	    return Response::json(array(
+		'error' => false,
+		'listado' => $ce),
+		200
+	    );
+
+	}
+	public function centros_especialidades($id,$habilitado=NULL){
+		switch($habilitado){
+			case "habilitado":
+				$habilitado = 1;
+				break;
+			case "deshabilitado":
+				$habilitado = 0;
+				break;
+			default:
+				$habilitado = NULL;
+				break;
+		}
+	$ce = Odontologo::findOrFail($id)->vistaCentrosEspecialidades($habilitado);
 	    return Response::json(array(
 		'error' => false,
 		'listado' => $ce),
@@ -187,5 +206,27 @@ class OdontologoController extends MaestroController {
 			200
 		    );
 
+	}
+
+	public function odontologosHabilitados($resumido='completo'){
+		$odontologos = Odontologo::orderBy('apellido')->orderBy('nombres')->whereExists(function($query){
+			$query->select(DB::raw(1))->from('centros_odontologos_especialidades')->whereRaw('centros_odontologos_especialidades.odontologo_id = odontologos.id and habilitado = 1');
+		})->get();
+		if($resumido=='simple'){
+			$filtered = $odontologos->pluck('nombre_completo','id')->all();
+			$odontologos = [];
+		       foreach($filtered as $key=>$odo){
+				$odontologos[] = ["id"=>$key,"nombre_completo"=>$odo];
+			}
+			//dd($odontologos);
+
+		}else {
+			$odontologos = $odontologos->toArray();
+		}
+	    return Response::json(array(
+		'error' => false,
+		'listado' => $odontologos),
+		200
+	    );
 	}
 }

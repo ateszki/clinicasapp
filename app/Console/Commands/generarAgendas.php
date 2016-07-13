@@ -12,7 +12,7 @@ class generarAgendas extends Command {
 	 *
 	 * @var string
 	 */
-	protected $name = 'generarAgendas';
+	protected $signature = 'generarAgendas';
 
 	/**
 	 * The console command description.

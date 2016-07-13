@@ -194,16 +194,39 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 				->where('especialidad_id',$params['especialidad_id'])->get();
 		
 		foreach ($coes as $coe){
-			$agendas = $coe->agendas()->where('habilitado_turnos','=',1)->where('fecha','=',$params["fecha"])->get();
+			//$agendas = $coe->agendas()->where('habilitado_turnos','=',1)->where('fecha','=',$params["fecha"])->get();
+			$agendas = $coe->agendas()->where('fecha','=',$params["fecha"])->get();
 			foreach ($agendas as $agenda){
 				$turnos = $agenda->vistaTurnos();
 				foreach($turnos as $t){
 					$pp = PacientePrepaga::find($t->paciente_prepaga_id);
+					$tt = Turno::find($t->id);
+					$trata = $tt->tratamientos()->get();
+					if(!empty($pp)){ 
+					$t->fecha_agenda= $agenda->fecha;
 					$t->tiene_fichados = ($pp->paciente->tieneFichados() > 0);
-					$t->presento_queja =  ($pp->paciente->presento_queja > 0);
-					$t->hiv = $pp->paciente->tieneHIV();
+					$ver_queja=$pp->paciente->getPresentoQuejaAttribute();
+					$t->presento_queja = ($ver_queja=="1")?"S":"N";
+					//$t->presento_queja = $pp->paciente->getPresentoQuejaAttribute();   // Este Va
+					$ver_hiv=$pp->paciente->getTieneHivAttribute();
+					$t->hiv = ($ver_hiv=="1")?"S":"N";
+					$t->edad = $pp->paciente->getEdadAttribute();
 					$t->presupuestos_con_saldo = $pp->presupuestosConSaldo();	
 					$t->facturas_con_saldo = $pp->facturasConSaldo();
+					$t->es_vip=($pp->paciente->vip)?"S":"N";
+					$t->cant_tratam=count($trata);
+					}else{
+					$t->fecha_agenda=$agenda->fecha;
+					$t->tiene_fichados = False;
+					$t->presento_queja =  NULL;
+					$t->hiv = NULL;
+					$t->edad = NULL;
+					$t->presupuestos_con_saldo = False;	
+					$t->facturas_con_saldo = False;
+					$t->es_vip=NULL;
+					$t->cant_tratam=0;
+					}
+					
 					$salida[]=$t;	
 				}
 			
@@ -441,13 +464,20 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 			'listado' => "Se generaron las agendas"));
 		}
 	}
-	public function generarTurnos($agenda_id = NULL){
+	public function generarTurnos($agenda_id = NULL,$fecha=NULL){
 		$errores = true;
 		if (empty($agenda_id)){
-			$agendas = Agenda::whereNotIn('id',function($query){$query->select('agenda_id')->from('turnos');})->where('habilitado_turnos','=',1)->get();
+			if(empty($fecha)){
+				$fecha_desde = date('Y-m-d 00:00:00');
+				$fecha_hasta =  date('Y-m-d 23:59:59');
+			} else {
+				$fecha_desde = $fecha.' 00:00:00';
+				$fecha_hasta = $fecha.' 23:59:59';
+			}
+			$agendas = Agenda::whereNotIn('id',function($query){$query->select('agenda_id')->from('turnos');})->where('habilitado_turnos','=',1)->where('created_at','>=',$fecha_desde)->where('created_at','<=',$fecha_hasta)->get();
 		} else {
 			$agendas = Agenda::where('id',$agenda_id)->get();
-		}	
+		}
 		foreach ($agendas as $agenda){
 			$coe = $agenda->centroOdontologoEspecialidad;
 			$horario_desde = date('H:i',strtotime(substr_replace($coe->horario_desde,':',2,0)));

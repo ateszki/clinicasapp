@@ -29,6 +29,7 @@ class User extends Maestro implements AuthenticatableContract, AuthorizableContr
 		'es_admin',
 		'habilitado',
 		'esquema_color_id',
+		'odontologo_id'
 		);
 
 
@@ -41,6 +42,7 @@ class User extends Maestro implements AuthenticatableContract, AuthorizableContr
 		'es_admin'=>'required|boolean',
 		'habilitado'=>'required|boolean',
 		'esquema_color_id' => 'exists:esquema_color,id',
+		'odontologo_id'=>'exists:odontologos,id',
                 );
 
 /**
@@ -50,6 +52,11 @@ class User extends Maestro implements AuthenticatableContract, AuthorizableContr
          */
         protected $hidden = array('password','pivot');
 	protected $primaryKey = 'id';
+	protected $appends = ['es_odontologo'];
+
+	public function getEsOdontologoAttribute(){
+		return ($this->odontologo_id != NULL);
+	}
         /**
          * Get the unique identifier for the user.
          *

@@ -163,6 +163,7 @@ public function observaciones_detalladas($id){
 					"fecha_emision"=>$fich->fecha_emision,
 					"tipo_fichado"=>$fich->tipo_fichado,
 					"odontologo"=>$coe->odontologo()->first()->nombreCompleto,
+					"odontologoId"=>$coe->odontologo()->first()->id,
 				);
 			}
 			return Response::json(array(
@@ -214,13 +215,14 @@ if(!empty($hasta)){
 				$salida["id"] = $t->id;
 				$salida["presente"] = ($t->presente)?"SI":"NO";
 				$salida["fecha"] = $agenda->fecha_arg;
+				$salida["fecha_us"] = $agenda->fecha;
 				$salida["estado"] = $t->estado;
 				$salida["hora_desde"] = $t->hora_desde;
 				$salida["hora_hasta"] = $t->hora_hasta;
 				$salida["fuera_de_agenda"] = ($t->fuera_de_agenda)?"SI":"NO";
 				$salida["odontologo_id"] = $odontologo->id;
 				$salida["odontologo"] = $odontologo->nombre_completo;
-				$salida["especialidad_od"] = $especialidad->id;
+				$salida["especialidad_id"] = $especialidad->id;
 				$salida["especialidad"] = $especialidad->especialidad;
 				$salida["centro_id"] = $centro->id;
 				$salida["centro"] = $centro->razonsocial;
@@ -273,6 +275,7 @@ if(!empty($hasta)){
 				$salida["id"] = $t->id;
 				$salida["presente"] = ($t->presente)?"SI":"NO";
 				$salida["fecha"] = $agenda->fecha_arg;
+				$salida["fecha_usa"] = substr($agenda->fecha,0,10);
 				$salida["estado"] = $t->estado;
 				$salida["hora_desde"] = $t->hora_desde;
 				$salida["hora_hasta"] = $t->hora_hasta;
@@ -328,9 +331,34 @@ if(!empty($hasta)){
 					//$p["fecha"] = $pt->fecha;
 					//$p["diagnostico"] = $pt->diagnostico;
 					$p["odontologo"] = $pt->odontologo()->first()->nombre_completo;
+					$p["odontologoid"] = $pt->odontologo()->first()->id;
 					$p["especialidad"] = $pt->especialidad()->first()->especialidad;
 					$p["centro"] = $pt->centro()->first()->razonsocial;
 					$salida[] = $p;
+				}
+			}	
+			return Response::json(array(
+				'error' => false,
+				'listado' => $salida),
+				200
+		    	);
+		}catch (Exception $e){
+			return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso:'.$id),200);
+		}
+	}
+	public function derivaciones($paciente_id){
+		try {
+			$pax = Paciente::findOrFail($paciente_id);
+			$pts = $pax->planes_tratamientos()->get();
+			$salida = array();
+			if(count($pts)){
+				foreach ($pts as $pt){
+					$derivaciones = $pt->derivaciones()->orderBy('id')->get();
+					if(count($derivaciones)){
+						foreach ($derivaciones as $d){
+							$salida[]=$d;
+						}
+					}
 				}
 			}	
 			return Response::json(array(
@@ -348,6 +376,18 @@ if(!empty($hasta)){
                         return Response::json(array(
                         'error' => false,
                         'listado' => $sobres->toArray()),
+                        200
+                        );
+                }catch (Exception $e){
+                        return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso:'.$id),200);
+                }
+        }
+		public function quejas($id){
+                try{
+                        $quejas = Paciente::findOrFail($id)->quejas()->get();
+                        return Response::json(array(
+                        'error' => false,
+                        'listado' => $quejas->toArray()),
                         200
                         );
                 }catch (Exception $e){

@@ -226,7 +226,7 @@ if (isset($new["password"])&& !empty($new["password"])){
 $new = array_map(function($n){return ($n == 'NULL')?NULL:$n;}, $new);
 
 		$new_modelo = $this->modelo->create($new);
-
+		DB::enableQueryLog();
 		if ($new_modelo->save()){
 		   $this->eventoAuditar($new_modelo);
 		   return Response::json(array(
@@ -307,6 +307,7 @@ if (isset($data["password"])&& !empty($data["password"])){
 //cambiar 'NUUL? por NULL
 $data = array_map(function($n){return ($n == 'NULL')?NULL:$n;}, $data);
 		$modelo->fill($data);
+		DB::enableQueryLog();
 		if ($modelo->save() !== false){
 			$this->eventoAuditar($modelo);
 			return Response::json(array(
@@ -340,6 +341,7 @@ $data = array_map(function($n){return ($n == 'NULL')?NULL:$n;}, $data);
 	{
 	try{	//
 		$modelo = $this->modelo->find($id);
+			DB::enableQueryLog();
 			$eliminado = $modelo->delete();
 			$this->eventoAuditar($modelo);
 			return Response::json(array('error'=>false,'listado'=>$modelo->toArray()),200);
@@ -353,7 +355,7 @@ $data = array_map(function($n){return ($n == 'NULL')?NULL:$n;}, $data);
 	}
 
 	public function eventoAuditar($modelo){
-		DB::enableQueryLog();
+		//DB::enableQueryLog();
 		$queries = DB::getQueryLog();
 		$last_query = end($queries);
 		$c = array();

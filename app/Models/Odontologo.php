@@ -3,7 +3,7 @@
 class Odontologo extends Maestro {
 
 	protected $table = 'odontologos'; 	
-
+	protected $appends = ['nombre_completo'];
 	protected $fillable = array(
 		'nombres',
 		'apellido',
@@ -55,19 +55,32 @@ class Odontologo extends Maestro {
 		return count($au);
 	}
 
-	public function vistaCentrosEspecialidades(){
-		return DB::table('centros_odontologos_especialidades')
+	public function vistaCentrosEspecialidades($habilitado = NULL){
+		$query = DB::table('centros_odontologos_especialidades')
                      ->join('centros','centros_odontologos_especialidades.centro_id','=','centros.id')
 ->join('especialidades','centros_odontologos_especialidades.especialidad_id','=','especialidades.id')
 			->select(DB::raw("centros_odontologos_especialidades.*,especialidades.especialidad, centros.razonsocial AS centro,
-CASE centros_odontologos_especialidades.turno
-WHEN 'T'
-THEN 'Tarde'
-WHEN 'M'
-THEN 'Maniana'
-END AS turno_nombre"))
-                     ->where('odontologo_id', '=', $this->id)
-                     ->get();
+			CASE centros_odontologos_especialidades.turno
+			WHEN 'T'
+			THEN 'Tarde'
+			WHEN 'M'
+			THEN 'Maniana'
+			END AS turno_nombre"))
+			->where('odontologo_id', '=', $this->id);
+			if($habilitado != NULL){
+				$query->where('habilitado','=',$habilitado);
+			}
+
+                     return $query->get();
+	}
+	public function vistaCentrosEspecialidadesAgrupado(){
+		return DB::select("select centros_odontologos_especialidades.id as coe_id, centros.id as centro_id, centros.razonsocial as centro, especialidades.id as especialidad_id, especialidades.especialidad 
+			from centros_odontologos_especialidades
+                        inner join centros on centros_odontologos_especialidades.centro_id = centros.id
+			inner join especialidades on centros_odontologos_especialidades.especialidad_id = especialidades.id
+			where
+		        centros_odontologos_especialidades.habilitado = 1	
+			and centros_odontologos_especialidades.odontologo_id = ? group by centro_id,especialidad_id ", [$this->id]);
 	}
 
 }

@@ -83,8 +83,9 @@ class UserController extends MaestroController {
 		$data = Input::All();
 		unset($data["apikey"]);
 		if( Auth::attempt($data)){
-			$key = Auth::user()->createSessionKey();
-			return Response::json(array('error'=>false,"listado"=>array('id'=>Auth::user()->id,'esquema_color_id'=>Auth::user()->esquema_color_id,'nombre'=>Auth::user()->nombre,'session_key'=>$key["session_key"],'session_expira'=>$key["session_expira"])),200);
+			$u = Auth::user();
+			$key = $u->createSessionKey();
+			return Response::json(array('error'=>false,"listado"=>array('id'=>$u->id,'esquema_color_id'=>$u->esquema_color_id,'nombre'=>$u->nombre,'session_key'=>$key["session_key"],'session_expira'=>$key["session_expira"],'es_odontologo'=>$u->es_odontologo,'odontologo_id'=>$u->odontologo_id)),200);
 		} else {
 			return Response::json(array('error'=>true,'mensaje'=>"Usuario o clave incorrectos."),200);
 		}

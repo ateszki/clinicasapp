@@ -140,8 +140,10 @@ class AgendaController extends MaestroController {
 
 	public function deshabilitarTurnos($id){
 		try {
+			$params = Input::all();
 			$a = Agenda::findOrFail($id);
 			$a->habilitado_turnos = 0;
+			$a->observaciones = $params['observaciones'];
 			if ($a->save()){
 				    return Response::json(array(
 					'error' => false,
@@ -166,8 +168,10 @@ class AgendaController extends MaestroController {
 
 	public function habilitarTurnos($id){
 		try {
+			$params = Input::all();
 			$a = Agenda::findOrFail($id);
 			$a->habilitado_turnos = 1;
+			$a->observaciones = $params['observaciones'];
 			if ($a->save()){
 				    return Response::json(array(
 					'error' => false,

@@ -82,32 +82,32 @@ class AnamnesisRespuestaController extends MaestroController {
 	public function responder(){
 		try {
 			DB::beginTransaction();
-
+			DB::enableQueryLog();
 			$data = Input::all();
 			$new = $data;
 			unset($new['apikey']);
 			unset($new['session_key']);
 			
-
+			AnamnesisRespuesta::where('paciente_id','=',$new["paciente_id"])->delete(); 
 			if(isset($new["respuesta"])){
- 
-			foreach ($new["respuesta"] as $i => $r){
-				$respuesta = array(
-					"paciente_id" => $new["paciente_id"],
-					"anamnesis_pregunta_id" => $new["pregunta"][$i],
-				//	"respuesta" => $r,
-				);
-				$AR = AnamnesisRespuesta::firstOrNew($respuesta);
-				$AR->respuesta = $r;
-				if ($AR->save()){
-					$this->eventoAuditar($AR);
-				} else{ 
-					DB::rollback();
-					return Response::json(array(
-					'error'=>true,
-					'mensaje' => HerramientasController::getErrores($AR->validator),
-					'listado'=>$data,
-					),200);
+				foreach ($new["respuesta"] as $i => $r){
+					$respuesta = array(
+						"paciente_id" => $new["paciente_id"],
+						"anamnesis_pregunta_id" => $new["pregunta"][$i],
+					//	"respuesta" => $r,
+					);
+					$AR = AnamnesisRespuesta::firstOrNew($respuesta);
+					$AR->respuesta = $r;
+					if ($AR->save()){
+						$this->eventoAuditar($AR);
+					} else{ 
+						DB::rollback();
+						return Response::json(array(
+						'error'=>true,
+						'mensaje' => HerramientasController::getErrores($AR->validator),
+						'listado'=>$data,
+						),200);
+					}
 				}
 			}
 			DB::commit();
@@ -115,9 +115,6 @@ class AnamnesisRespuestaController extends MaestroController {
 			'error'=>false,
 			'listado'=>"OK"),
 			200);
-
-
-			}
 
 		}  catch(\Exception $e){
 				DB::rollback();

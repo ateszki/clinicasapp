@@ -1,8 +1,23 @@
 <?php
+use Carbon\Carbon;
 
 class Paciente extends Maestro {
-
 	protected $table = 'pacientes'; 	
+
+	public function newFromBuilder($attributes = array(),$connection=NULL)  {
+	        $model =  parent::newFromBuilder($attributes); // Eloquent
+		if($model->fecha_nacimiento == '-0001-11-30 00:00:00'){
+			$model->fecha_nacimiento = NULL;
+		}
+		if($model->created_at == '-0001-11-30 00:00:00'){
+			$model->created_at = Carbon::now();
+		}
+		if($model->updated_at == '-0001-11-30 00:00:00'){
+			$model->updated_at = Carbon::now();
+		}
+
+		return $model;
+	}
 
 	protected $fillable = array(
 		'apellido',
@@ -49,7 +64,9 @@ class Paciente extends Maestro {
 		    ];
 
 
-	protected $appends = ['presento_queja'];
+	protected $appends = ['presento_queja','tiene_hiv','edad'];
+
+	protected $dates = ['created_at','updated_at','fecha_nacimiento'];
 
 	public function prepagas(){
 		return $this->belongsToMany('Prepaga');
@@ -112,15 +129,44 @@ class Paciente extends Maestro {
 	}
 
 	public function getPresentoQuejaAttribute(){
-		return count($this->quejas);
+		return (count(DB::select("select id from quejas where paciente_id = ?",[$this->id]))> 0)?"1":"0";
 	}
 
-	public function tieneHIV(){
-		$ars = $this->anamnesis_respuestas()->where('anamnesis_pregunta_id','=',19)->get();
-		$salida = false;
-		foreach ($ars as $ar){
-			$salida = ($ar->respuesta == 'SI')?true:false;
-		}
-		return $salida;
+	public function getTieneHivAttribute(){
+		//return (string) count(DB::select("select id from anamnesis_respuestas where anamnesis_pregunta_id = 19 and respuesta = 'SI' and paciente_id = ?",[$this->id])); 
+		return (string) count(DB::select("select id from anamnesis_respuestas where anamnesis_pregunta_id = 19 and respuesta = 'SI' and paciente_id = ?",[$this->id])); 
+	}
+	public function getEdadAttribute(){
+		return ($this->fecha_nacimiento == NULL)?"0":(string) $this->fecha_nacimiento->age;
+	}
+	
+	public function getEsquema(){
+		$esquema = parent::getEsquema();
+		$esquema[] = array(
+			"Field"=> "presento_queja",
+			"Type"=> "tinyint(1)",
+			"Null"=> "YES",
+			"Key"=> "",
+			"Default"=>"0",
+			"Extra"=> ""
+		);
+		$esquema[] = array(
+			"Field"=> "tiene_hiv",
+			"Type"=> "tinyint(1)",
+			"Null"=> "YES",
+			"Key"=> "",
+			"Default"=>"0",
+			"Extra"=> ""
+		);
+		$esquema[] = array(
+			"Field"=> "edad",
+			"Type"=> "int (11)",
+			"Null"=> "YES",
+			"Key"=> "",
+			"Default"=>"0",
+			"Extra"=> ""
+		);
+		//dd($esquema);
+		return $esquema;
 	}
 }

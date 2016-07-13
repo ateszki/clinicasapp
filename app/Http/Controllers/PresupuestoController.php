@@ -102,7 +102,7 @@ class PresupuestoController extends MaestroController {
 		try
 		{
 
-
+		DB::enableQueryLog();
 		$data = Input::all();
 		$new = $data;
 		unset($new['apikey']);
@@ -317,11 +317,14 @@ class PresupuestoController extends MaestroController {
 					"fecha_emision"=>$presu->fecha_emision,
 					"estado"=>(empty($presu->fecha_aprobacion))?'PROVISORIO':'APROBADO',
 					"importe_bruto"=>$presu->importe_bruto,
+					"bonificacion"=>$presu->bonificacion,
 					"importe_neto"=>$presu->importe_neto,
 					"odontologo"=>$coe->odontologo()->first()->nombreCompleto,
 					"especialidad"=>$coe->especialidad()->first()->especialidad,
 					"prepaga_codigo"=>$prepaga->codigo,
 					"prepaga_razon"=>$prepaga->razon_social,
+					"pagado"=>$presu->pagado,
+					"saldo"=>$presu->importe_neto-$presu->pagado,
 				);
 			}
 			return Response::json(array(
@@ -361,6 +364,7 @@ class PresupuestoController extends MaestroController {
 	public function aprobar($id){
 		DB::beginTransaction();
 		try {
+			DB::enableQueryLog();
 			$data = Input::all();
 			unset($data['apikey']);
 			unset($data['session_key']);
@@ -378,6 +382,7 @@ class PresupuestoController extends MaestroController {
 			$presu->bonificacion = $data["bonificacion"];
 			$presu->save();
 				DB::commit();
+				$this->eventoAuditar($presu);
 				return Response::json(array(
 				'error'=>false,
 				'mensaje'=>'Presupuesto '.$id.' aprobado correctamente', 
@@ -397,6 +402,7 @@ class PresupuestoController extends MaestroController {
 	public function restaurar($id){
 		DB::beginTransaction();
 		try {
+			DB::enableQueryLog();
 			$data = Input::all();
 			$presu = Presupuesto::findOrFail($id);
 			$lineas = $presu->lineas()->get();
@@ -410,6 +416,7 @@ class PresupuestoController extends MaestroController {
 			$presu->importe_neto = null;
 			$presu->save();
 				DB::commit();
+				$this->eventoAuditar($presu);
 				return Response::json(array(
 				'error'=>false,
 				'mensaje'=>'Presupuesto '.$id.' restaurado correctamente', 
@@ -446,5 +453,25 @@ class PresupuestoController extends MaestroController {
                 }
 
         }
+	public function actualizarLinea($id){
+		$params = Input::all();
+		$linea = PresupuestoLinea::findOrFail($id);
+		try {
+			$nuevoImporte=$params['importe'];
+			$linea->importe = $nuevoImporte;
+			$linea->save();
+			return Response::json(array(
+				'error'=>false,
+				'listado'=>$linea->toArray()),
+				200);
+		}catch (Exception $e){
+			return Response::json(array(
+				'error' => true,
+				'mensaje' => $e->getMessage()),
+				200
+				    );
+		}
+
+	}
 
 }

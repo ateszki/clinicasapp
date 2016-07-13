@@ -93,6 +93,20 @@ class PrepagaController extends MaestroController {
 
 
 	}
+	public function planes($id){
+	try {	
+		$planes = Prepaga::findOrFail($id)->planes()->get();
+		return Response::json(array(
+                'error' => false,
+                'listado' => $planes->toArray()),
+                200
+            );
+	}catch (Exception $e){
+		return Response::json(array('error'=>true,'mensaje'=>$e->getMessage()?:'No se encuentra el recurso: '.$id),200);
+	}
+
+
+	}
 /*
 	public function setPaciente($id,$paciente_id){
 		try {

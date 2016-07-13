@@ -109,8 +109,10 @@ class Ctacte extends Maestro {
 		return (is_object($t))?($t->debehaber == 'H')?$this->importe_total:0:0;
 	}
 	public function getSaldoAttribute($value){
-		$importe_aplicado = DB::table('ctactes')->where('referencia','=',$this->id)->where('cancelado','=',0)->sum('importe_bruto');
-		return $this->importe_bruto - $importe_aplicado;
+		$importe_aplicado = DB::table('ctactes')->where('referencia','=',$this->id)->where('cancelado','=',0)->where('tipo_prev','<>','RI')->sum('importe_bruto');
+		$importe_reintegrado = DB::table('ctactes')->where('referencia','=',$this->id)->where('cancelado','=',0)->where('tipo_prev','=','RI')->sum('importe_bruto');
+		$saldocta = $this->importe_bruto + $importe_reintegrado - $importe_aplicado;
+		return (substr($this->tipo_prev,0,1) =='F')?$saldocta:0;
 	}
         public function getNroCompletoAttribute($value){
                 return $this->tipo_cbte."-".$this->prefijo_cbte."-".$this->nro_cbte;

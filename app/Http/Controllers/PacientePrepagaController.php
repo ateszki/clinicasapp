@@ -97,7 +97,7 @@ class PacientePrepagaController extends MaestroController {
 		$user_id = Auth::user()->id;
 		$paciente_prepaga = PacientePrepaga::findOrFail($paciente_prepaga_id);
 		$turnos = explode(",",$turno_id);
-		
+		DB::enableQueryLog();
 		//si son muchos turnos
 		if (count($turnos) > 1){
 			$objTurnos = Turno::whereIn('id',$turnos)->where('estado','L')->get();

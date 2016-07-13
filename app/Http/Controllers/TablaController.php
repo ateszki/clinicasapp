@@ -78,5 +78,12 @@ class TablaController extends MaestroController {
 	{
 		return parent::destroy($id);
 	}
-
+	public function vistacodigotabla($codigotabla){
+		$tabla = Tabla::where('codigo_tabla','=',$codigotabla)->get();
+	    return Response::json(array(
+				'error' => false,
+				'listado' => $tabla),
+					200
+				    );
+	}
 }

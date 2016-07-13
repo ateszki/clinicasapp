@@ -1,5 +1,4 @@
 <?php
-
 class Presupuesto extends Maestro {
 
 	protected $table = 'presupuestos'; 	
@@ -16,7 +15,7 @@ class Presupuesto extends Maestro {
 			'importe_neto',
 			'observaciones'
 	);
-
+	protected $appends = ['pagado'];
 
 	public $rules = array(
                         'fecha_emision' => 'Required|date',
@@ -56,5 +55,11 @@ class Presupuesto extends Maestro {
 	}	
 	public function pagos(){
 		return $this->hasMany('CtacteFacLin');
+	}
+	public function getPagadoAttribute(){
+		$total = DB::select("SELECT sum( `importe` ) AS total
+			FROM `ctactes_fac_lin`
+			WHERE presupuesto_id = ?",[$this->id]);
+		return (count($total)==0)?0:$total[0]->total;
 	}
 }

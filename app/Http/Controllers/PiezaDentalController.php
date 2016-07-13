@@ -1,6 +1,6 @@
 <?php
 
-class PiezaController extends MaestroController {
+class PiezaDentalController extends MaestroController {
 
 	function __construct(){
 		$this->classname= 'PiezaDental';

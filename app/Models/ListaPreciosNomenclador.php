@@ -23,7 +23,7 @@ class ListaPreciosNomenclador extends Maestro {
 	public $rules = array(
                         'listas_precios_id' => 'Required|integer|exists:listas_precios,id',
                         'nomenclador_id' => 'Required|integer|exists:nomencladores,id',
-			'precio'=>'required|numeric',
+			'precio'=>'numeric',
 			'requiere_autorizacion'=>'required|boolean',
 			'requiere_odontograma'=>'required|boolean',
 			'requiere_planilla_aparte'=>'required|boolean',

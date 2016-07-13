@@ -18,7 +18,7 @@ class PlanTratamientoSeguimiento extends Maestro {
 			'centro_odontologo_especialidad_id' => 'required|integer|exists:centros_odontologos_especialidades,id',
                 );
 
-	protected $appends = array('odontologo','especialidad');
+	protected $appends = array('odontologo','especialidad','odontologo_id');
 
 	public function plan_tratamiento(){
 		return $this->belongsTo('PlanTratamiento');
@@ -31,6 +31,9 @@ class PlanTratamientoSeguimiento extends Maestro {
         }
         public function getEspecialidadAttribute(){
                 return $this->coe()->first()->especialidad()->first()->especialidad;
+        }
+		public function getOdontologoIdAttribute(){
+                return $this->coe()->first()->odontologo()->first()->id;
         }
         public function getEsquema(){
                 $esquema = parent::getEsquema();

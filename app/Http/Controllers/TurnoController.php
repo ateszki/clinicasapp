@@ -81,10 +81,14 @@ class TurnoController extends MaestroController {
 	public function liberar($id){
 		try{
 			$turnos = explode(",",$id);
-			
+			DB::enableQueryLog();
 			//si son muchos turnos
 			if (count($turnos) > 1){
-				$affectedRows = Turno::whereIn('id',$turnos)->where('estado','A')->update(array('estado' => 'L','paciente_prepaga_id'=>NULL, 'user_id'=>Auth::user()->id,"motivo_turno_id"=>NULL,'piezas'=>NULL,'derivado_por'=>NULL,'observaciones'=>NULL,'fuera_de_agenda'=>NULL));
+				$affectedRows = Turno::whereIn('id',$turnos)->where('estado','A')->whereNotExists(function ($query) {
+					                $query->select(DB::raw(1))
+								                      ->from('tratamientos')
+										                            ->whereRaw('tratamientos.turno_id = turnos.id');
+							            })->update(array('estado' => 'L','paciente_prepaga_id'=>NULL, 'user_id'=>Auth::user()->id,"motivo_turno_id"=>NULL,'piezas'=>NULL,'derivado_por'=>NULL,'observaciones'=>NULL,'fuera_de_agenda'=>NULL));
 				if ($affectedRows == count($turnos)){
 					$objTurnos = Turno::whereIn('id',$turnos)->where('estado','L')->get();	
 					foreach($objTurnos as $cadaTurno)	{
@@ -96,9 +100,10 @@ class TurnoController extends MaestroController {
 						'listado'=>array($turno->find($turno->id)->toArray())),
 						200);
 				} else {
+					$mensaje = ($affectedRows==0)?'No se pudieron desasignar los turnos':'No se pudieron desasignar los turnos seleccionados con tratamientos cargados';
 					return Response::json(array(
 					'error'=>true,
-					'mensaje' => 'No se pudieron desasignar los turnos',
+					'mensaje' => $mensaje,
 					'envio'=>$turnos,
 					),200);
 	
@@ -106,10 +111,21 @@ class TurnoController extends MaestroController {
 				
 			} else {
 				$modelo = $this->modelo->find($id);
+				if($modelo->tratamientos->count()){
+				
+					return Response::json(array(
+					'error'=>true,
+					'mensaje' => 'No se pueden desasignar turnos con tratamientos realizados',
+					'envio'=>$modelo->toArray(),
+					),200);
+				}
+				
 				//elimina si es entreturno
 				if($modelo->tipo_turno == 'E'){
 					return $this->destroy($id);
 				}
+				
+
 				$data = array(
 				"estado" => 'L',
 				"paciente_prepaga_id" => null,
@@ -122,6 +138,7 @@ class TurnoController extends MaestroController {
 				);
 				$modelo->fill($data);
 				if ($modelo->save() !== false){
+					unset($modelo->tratamientos);
 					$this->eventoAuditar($modelo);
 					return Response::json(array(
 					'error'=>false,
@@ -196,6 +213,68 @@ class TurnoController extends MaestroController {
 			'error'=>false,
 			'listado'=>$tratamientos),
 			200);
+
+		} catch(Exception $e){
+			return Response::json(array(
+			'error' => true,
+			'mensaje' => $e->getMessage()),
+			200
+			    );
+		}
+	}
+	public function registroIngresos($id,$accion){
+		try{
+			$modelo = $this->modelo->findOrFail($id);
+			
+			if($modelo->$accion == NULL){
+				$modelo->$accion = date('H:i:s');
+				if($accion == 'hora_ingreso_clinica'){
+					$modelo->presente = 1;
+				}
+			}
+
+			if ($modelo->save() !== false){
+				$this->eventoAuditar($modelo);
+				return Response::json(array(
+				'error'=>false,
+				'listado'=>array($modelo->toArray())),
+				200);
+			}else {
+				return Response::json(array(
+				'error'=>true,
+				'mensaje' => HerramientasController::getErrores($modelo->validator),
+				'listado'=>$modelo->toArray(),
+				),200);
+			}	
+
+		} catch(Exception $e){
+			return Response::json(array(
+			'error' => true,
+			'mensaje' => $e->getMessage()),
+			200
+			    );
+		}
+	}
+	public function eliminarRegistroIngresos($id,$accion){
+		try{
+			$modelo = $this->modelo->findOrFail($id);
+			$modelo->$accion = null;
+			if($accion == 'hora_ingreso_clinica'){
+				$modelo->presente = 0;
+			}
+			if ($modelo->save() !== false){
+				$this->eventoAuditar($modelo);
+				return Response::json(array(
+				'error'=>false,
+				'listado'=>array($modelo->toArray())),
+				200);
+			}else {
+				return Response::json(array(
+				'error'=>true,
+				'mensaje' => HerramientasController::getErrores($modelo->validator),
+				'listado'=>$modelo->toArray(),
+				),200);
+			}	
 
 		} catch(Exception $e){
 			return Response::json(array(
