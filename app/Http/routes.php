@@ -60,9 +60,9 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::get('paciente/{paciente_id}/anamnesis','PacienteController@anamnesis');
 	Route::get('paciente/{paciente_id}/sobres','PacienteController@sobres');
 	Route::get('paciente/{paciente_id}/quejas','PacienteController@quejas');
+	Route::get('paciente/{paciente_id}/planes-tratamientos','PacienteController@planes_tratamientos');
 	Route::get('paciente/{paciente_id}/turnos','PacienteController@turnos');
 	Route::get('paciente/{paciente_id}/derivaciones','PacienteController@derivaciones');
-	Route::get('paciente/{paciente_id}/planes-tratamientos','PacienteController@planes_tratamientos');
 	Route::get('paciente/{paciente_id}/tratamientos','PacienteController@tratamientos');
 	Route::get('paciente/{paciente_id}/fichados-vista','PacienteController@fichadosVista');
 	Route::get('paciente/{paciente_id}/fichados-items/{pieza_dental_id}','PacienteController@fichadosItems');
@@ -208,8 +208,9 @@ Route::group(['middleware' => ['apiauth','usuarioauth']], function()
 	Route::post('nomenclador/buscar','NomencladorController@postBuscar');
 	Route::resource('nomenclador', 'NomencladorController');
 	
+	Route::get('tratamiento/turnos-entre-fechas','TratamientoController@turnosEntreFechas');
+	Route::get('tratamiento/turnos-entre-fechas-totales','TratamientoController@turnosEntreFechasTotales');
 	Route::get('tratamiento/tratamientos-entre-fechas','TratamientoController@tratamientosEntreFechas');
-	Route::get('tratamiento/tratamientos-entre-fechas-totales','TratamientoController@tratamientosEntreFechasTotales');
 	Route::post('tratamiento/buscar','TratamientoController@postBuscar');
 	Route::resource('tratamiento', 'TratamientoController');
 

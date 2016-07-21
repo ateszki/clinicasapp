@@ -480,19 +480,28 @@ class CentroOdontologoEspecialidadController extends MaestroController {
 		}
 		foreach ($agendas as $agenda){
 			$coe = $agenda->centroOdontologoEspecialidad;
+			$especialidad = $coe->especialidad;
 			$horario_desde = date('H:i',strtotime(substr_replace($coe->horario_desde,':',2,0)));
 			$horario_hasta = date('H:i',strtotime(substr_replace($coe->horario_hasta,':',2,0)));
 			$duracion = $coe->duracion_turno;
 			$hora = $horario_desde;
 			$hora_hasta = date('H:i',strtotime("+".$duracion." minutes", strtotime($hora)));
 			$turnos = array();
+			$reservar = 0;
 			while (strtotime($hora) < strtotime($horario_hasta)){
+				$reservar += 1;
+				if($reservar == $especialidad->reserva_cada){
+					$estado = 'W';
+					$reservar = 0;
+				} else {
+					$estado = 'L';
+				}	
 				$turno = array();
 				$turno["agenda_id"] = $agenda->id;
 				$turno["hora_desde"] = str_replace(":","",$hora);
 				$turno["hora_hasta"] = str_replace(":","",$hora_hasta);
 				$turno["tipo_turno"] = 'T';// turno
-				$turno["estado"] = 'L';// libre
+				$turno["estado"] = $estado;//L libre W reservado web
 				$turno["created_at"] = date("Y-m-d H:i:s");
 				$turno["updated_at"] = date("Y-m-d H:i:s");
 				$turnos[] = $turno;

@@ -30,7 +30,7 @@ class Turno extends Maestro {
 			'hora_desde' => 'Required|min:4|max:4',
 			'hora_hasta' => 'Required|min:4|max:4',
 			'tipo_turno' => 'Required|min:1|max:1|in:T,E',//T = turno, E = entreturno
-			'estado' => 'Required|min:1|max:1|in:A,B,L',//A = asignado, B = bloqueado, L = Libre
+			'estado' => 'Required|min:1|max:1|in:A,B,L,W',//A = asignado, B = bloqueado, L = Libre, W = Reservado web
 			'paciente_prepaga_id' => 'exists:paciente_prepaga,id',
 			'motivo_turno_id' => 'integer|exists:motivos_turnos,id',
 			'piezas' => 'max:50',
